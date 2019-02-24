@@ -1,0 +1,300 @@
+---
+title: "Data 606 Chapter 3 Homework"
+author: "Yohannes Deboch"
+date: "February 24, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+Graded: 3.2 (see normalPlot), 3.4, 3.18 (use qqnormsim from lab 3), 3.22, 3.38, 3.42
+
+3.2 Area under the curve, Part II. What percent of a standard normal distribution N(µ =
+0,σ = 1) is found in each region? Be sure to draw a graph.
+(a) Z > −1.13
+Answer:
+```{r}
+x <- seq(-4.5,4.5,0.01)
+y <- dnorm(x, 0, 1)
+df <- data.frame(x,y)
+# Plot
+df %>%
+    ggplot(aes(x,y))+geom_line()+
+    geom_segment(aes(-1.13,0,xend = -1.13, yend = dnorm(-1.13,0,1)), linetype=2, col="blue")+
+    geom_ribbon(data = subset(df,x>-1.13), aes(x = x , ymax = y), ymin = 0, fill="blue",alpha=0.4)+theme_classic()
+
+```
+```{r}
+round(100*pnorm(-1.13, 0, 1, lower.tail = FALSE), 2)
+```
+87.08 % of the standard normal distribution falls below -1.13
+(b) Z < 0.18 
+
+Answer:
+```{r}
+cut_point <- -0.18
+x <- seq(-4.5,4.5,0.01)
+y <- dnorm(x, 0, 1)
+df <- data.frame(x,y)
+# Plot
+df %>%
+    ggplot(aes(x,y))+geom_line()+
+    geom_segment(aes(cut_point,0,xend = cut_point, yend = dnorm(cut_point,0,1)), linetype=2, col="blue")+
+    geom_ribbon(data = subset(df,x>cut_point), aes(x = x , ymax = y), ymin = 0, fill="blue",alpha=0.4)+theme_classic()
+
+```
+```{r}
+round(100*pnorm(cut_point, 0, 1, lower.tail = TRUE), 2)
+```
+42.86% of the standard normal distribution lies < -0.18
+(c) Z > 8
+
+```{r}
+x <- seq(7.9, 8.9, by = 0.01)
+y <- dnorm(x,0,1)
+v<-seq(8,9,0.01)
+w<-dnorm(v,0,1)
+plot(x,y,type = 'l')
+polygon(c(8,v,9),c(0,w,0),col='blue')
+text(x=8,y=0,"8")
+
+```
+```{r}
+options(scipen=16)
+100*pnorm(cut_point, 0, 1, lower.tail = FALSE)
+```
+0.00000000000006220961% of the standard normal distribution lies to the right of 8.
+(d) |Z| < 0.5
+
+```{r}
+cut_point <- 0.5
+x <- seq(-4.5,4.5,0.01)
+y <- dnorm(x, 0, 1)
+df <- data.frame(x,y)
+# Plot
+df %>%
+    ggplot(aes(x,y))+geom_line()+
+    geom_segment(aes(-cut_point,0,xend = -cut_point, yend = dnorm(-cut_point,0,1)), linetype=2, col="blue")+
+    geom_segment(aes(cut_point,0,xend = cut_point, yend = dnorm(cut_point,0,1)), linetype=2, col="blue")+
+    geom_ribbon(data = subset(df,x>-cut_point & x < cut_point), aes(x = x , ymax = y), ymin = 0, fill="blue",alpha=0.4)+theme_classic()
+
+```
+```{r}
+round(100*pnorm(-cut_point, 0, 1, lower.tail = TRUE)-pnorm(-cut_point, 0, 1, lower.tail = TRUE), 2)
+```
+30.55% of the standard normal distribtuion has an absolute value < 5.
+
+
+
+3.4 Triathlon times, Part I. In triathlons, it is common for racers to be placed into age
+and gender groups. Friends Leo and Mary both completed the Hermosa Beach Triathlon, where
+Leo competed in the Men, Ages 30 - 34 group while Mary competed in the Women, Ages 25 -
+29 group. Leo completed the race in 1:22:28 (4948 seconds), while Mary completed the race in
+
+1:31:53 (5513 seconds). Obviously Leo finished faster, but they are curious about how they did
+within their respective groups. Can you help them? Here is some information on the performance
+
+of their groups:
+
+• The finishing times of the Men, Ages 30 - 34 group has a mean of 4313 seconds with a
+standard deviation of 583 seconds.
+
+• The finishing times of the Women, Ages 25 - 29 group has a mean of 5261 seconds with a
+standard deviation of 807 seconds.
+
+• The distributions of finishing times for both groups are approximately Normal.
+Remember: a better performance corresponds to a faster finish.
+
+(a) Write down the short-hand for these two normal distributions.
+
+Answer:The distribution of the finishing times of the Men, Ages 30 - 34 group is $N(\mu=4313,\sigma= 583).$
+
+The distribution of the finishing times of the Women, Ages 25 - 29 group is $N(\mu=5261 , \sigma=807)$
+
+(b) What are the Z-scores for Leo’s and Mary’s finishing times? What do these Z-scores tell you?
+Answer: 
+```{r}
+(4948 - 4313)/583
+(5513-5261)/807
+```
+Leo's Z score = 1.089194
+Mary's Z Score = 0.3122677
+Leo is faster than Mary.
+
+(c) Did Leo or Mary rank better in their respective groups? Explain your reasoning.
+
+Answer: Leo rank better than Mary in their respective groups. Loe has a higher z score than Mary which means Leo completed faster than more people in his group than Mary finished faster than number of people in her group. 
+
+(d) What percent of the triathletes did Leo finish faster than in his group?
+Answer:
+```{r}
+pnorm(4948,4313,583, lower.tail = FALSE)
+```
+Leo finish faster than 0.1380342% in his group.
+(e) What percent of the triathletes did Mary finish faster than in her group?
+Answer:
+```{r}
+pnorm(5513,5261,807, lower.tail = FALSE)
+```
+Mary finish faster than  0.3774186% in her grouop.
+(f) If the distributions of finishing times are not nearly normal, would your answers to parts
+
+(b) - (e) change? Explain your reasoning.
+
+Answer: If the distributions of finishing time are not nearly normal the answer to part (b)-(e) won't change, for large sample size in both cases the data will approximately follow normal distribtuion by central limit theorme. 
+
+3.18 Heights of female college students. Below are heights of 25 female college students.
+```{r}
+heights <- c(54, 55, 56, 56, 57, 58, 58, 59, 60, 60, 60, 61, 61, 62, 62, 63, 63, 63, 64, 65, 65, 67, 67, 69, 73)
+mean_height <- 61.52
+std_height <- 4.58
+```
+
+(a) The mean height is 61.52 inches with a standard deviation of 4.58 inches. Use this information
+to determine if the heights approximately follow the 68-95-99.7% Rule.
+
+```{r}
+length(heights[heights >=( mean_height - std_height) & heights <=( mean_height + std_height)])/length(heights)*100
+
+
+length(heights[heights >=( mean_height - 2*std_height) & heights <=( mean_height + 2*std_height)])/length(heights)*100
+
+length(heights[heights >=( mean_height - 3*std_height) & heights <=( mean_height + 3*std_height)])/length(heights)*100
+
+```
+From the data we can see that 68% heights are in 1 standard deviation, appriximately 95% in 2 standard deviation and appriximately 99.7 % in 3 standard devaition. From the above analysis we can say that the heights are appriximately follow 78-95-99.7% Rule.
+
+(b) Do these data appear to follow a normal distribution? Explain your reasoning using the graphs
+provided below.
+```{r}
+par(mfrow=c(1,2))
+hist(heights)
+qqnorm(heights)
+qqline(heights)
+```
+The appear to follow a normal distribution. From the histogram we can see that the histogram shows a symmetrical bell shape. From the Q-Q plot we can see that the quantiles are approximately on the 45 degree angle on the reference line which suggests normality of the data.
+
+
+3.22 Defective rate. A machine that produces a special type of transistor (a component of
+computers) has a 2% defective rate. The production is considered a random process where each
+transistor is independent of the others.
+
+(a) What is the probability that the 10 th transistor produced is the first with a defect?
+```{r}
+dbinom(1,size = 10, prob = 0.02)
+```
+The probability is 0.1667496 that the 10th transistor produced is the first with a defect.
+(b) What is the probability that the machine produces no defective transistors in a batch of 100?
+
+```{r}
+dbinom(0,size = 100, prob = 0.02)
+```
+The probability that the machine produces no defective transistors in a batch of 100 is 0.1326196.
+
+(c) On average, how many transistors would you expect to be produced before the first with a
+defect? What is the standard deviation?
+
+```{r}
+1/0.02
+```
+On average 50 transistors need to be produced before thea defect.
+
+```{r}
+sqrt((1-0.02)/0.02^2)
+```
+The standard deviationis 49.49747.
+
+(d) Another machine that also produces transistors has a 5% defective rate where each transistor
+is produced independent of the others. On average how many transistors would you expect to
+be produced with this machine before the first with a defect? What is the standard deviation?
+
+```{r}
+1/0.05
+```
+On average 20 transistors need to be produced before thea defect.
+
+```{r}
+sqrt((1-0.05)/0.05^2)
+```
+The standard deviationis 19.49359.
+
+(e) Based on your answers to parts (c) and (d), how does increasing the probability of an event
+affect the mean and standard deviation of the wait time until success?
+
+Answer: When probability increases mean and standard deviation decreaesses.
+
+
+3.38 Male children. While it is often assumed that the probabilities of having a boy or a girl
+are the same, the actual probability of having a boy is slightly higher at 0.51. Suppose a couple
+plans to have 3 kids.
+
+(a) Use the binomial model to calculate the probability that two of them will be boys.
+Answer:
+
+```{r}
+dbinom(2,3,0.51)
+```
+Two of them will be boys probability is  0.382347.
+
+
+
+(b) Write out all possible orderings of 3 children, 2 of whom are boys. Use these scenarios to
+calculate the same probability from part (a) but using the addition rule for disjoint outcomes.
+Confirm that your answers from parts (a) and (b) match.
+The ordering is 
+
+1. BBG
+2. BGB
+3. GBB
+where B boys, G is Girl
+
+```{r}
+p <- 0.51
+BBB <- p*p*(1-p)
+BGB <- p*(1-p)*p
+GBB <- (1-p)*p*p
+total <- BBB + BGB + GBB
+total
+```
+Probability using the scenario is  0.382347 which is same as part (a)
+
+(c) If we wanted to calculate the probability that a couple who plans to have 8 kids will have
+
+3 boys, briefly describe why the approach from part (b) would be more tedious than the
+approach from part (a)
+
+Answer: The method in (b) will be tedious and time consuming because we've to do the calculations for all 56 combinations of boys and girls.
+
+3.42 Serving in volleyball. A not-so-skilled volleyball player has a 15% chance of making the
+serve, which involves hitting the ball so it passes over the net on a trajectory such that it will land
+in the opposing team’s court. Suppose that her serves are independent of each other.
+
+(a) What is the probability that on the 10 th try she will make her 3 rd successful serve?
+Answer:
+
+```{r}
+dbinom(2, 9, 0.15)*0.15
+```
+The probability is 0.03895012.
+
+
+(b) Suppose she has made two successful serves in nine attempts. What is the probability that
+her 10 th serve will be successful?
+
+Answer:
+The probability is 0.15 since each of the serve is independent of the other serves.
+
+(c) Even though parts (a) and (b) discuss the same scenario, the probabilities you calculated
+should be different. Can you explain the reason for this discrepancy?
+
+Answer: In case of (a) we're not taking into account previous serves
+Part (a) is the sum of several independent events. 3 successful serves in 10 attempts. Here the probability of total 3 successful serve.
+
+(b) is one independent event that is 10th serve will be successful.
